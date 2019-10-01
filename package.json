@@ -6,6 +6,7 @@
     "@smooth-ui/core-sc": "^11.1.0",
     "axios": "^0.19.0",
     "cors": "^2.8.5",
+    "dotenv": "^8.1.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.2",
@@ -13,7 +14,7 @@
     "styled-components": "^4.4.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3006 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
