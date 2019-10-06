@@ -26,6 +26,7 @@ function App() {
   const [newName, setNewName] = useState('')
   const [newRarity, setNewRarity] = useState('common')
   const [newScientificName, setNewScientificName] = useState('')
+  const [newNote, setNewNote] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -79,20 +80,20 @@ function App() {
     const observationObject = {
       name: newName,
       scientificName: newScientificName,
+      note: newNote,
       rarity: newRarity
     }
 
     observationService
       .create(observationObject)
       .then(returnedObject => {
-        console.log('returned object...', returnedObject)
-        setObservations(observations.concat(returnedObject))
+        setObservations([returnedObject].concat(observations))
         setNewName('')
         setNewScientificName('')
         setNewRarity('common')
+        setNewNote('')
       })
       .catch(returnedObject => {
-        console.log(returnedObject)
         setErrorMessage('Error')
       })
   }
@@ -104,16 +105,19 @@ function App() {
         />
   )
 
-  const handeleNewNameChange = (event) => {
+  const handleNewNameChange = (event) => {
     setNewName(event.target.value)
   }
 
-  const handeleNewScientificNameChange = (event) => {
+  const handleNewScientificNameChange = (event) => {
     setNewScientificName(event.target.value)
   }
 
-  const handeleNewRarityChange = (event) => {
-    console.log('event target value', event.target.value)
+  const handleNewNoteChange = (event) => {
+    setNewNote(event.target.value)
+  }
+
+  const handleNewRarityChange = (event) => {
     setNewRarity(event.target.value)
   }
 
@@ -143,7 +147,17 @@ function App() {
   }
 
   const observationFormRef = React.createRef()
-
+  let observationFormProps = {
+    onSubmit: addObservation,
+    newName,
+    handleNewNameChange,
+    newRarity,
+    handleNewRarityChange,
+    newScientificName,
+    handleNewScientificNameChange,
+    newNote,
+    handleNewNoteChange
+  }
 
   return (
     <div>
@@ -156,21 +170,11 @@ function App() {
         <div>
           <p>{user.name} logged in</p>
           < Togglable buttonLabel="new observation" ref={observationFormRef} >
-            <ObservationForm
-              onSubmit={addObservation}
-              newName={newName}
-              newRarity={newRarity}
-              newScientificName={newScientificName}
-              handleNewNameChange={handeleNewNameChange}
-              handleNewScientificNameChange={handeleNewScientificNameChange}
-              handleNewRarityChange={handeleNewRarityChange}
-            />
+            <ObservationForm {...observationFormProps} />
           </Togglable >
 
         </div>
       }
-
-
 
       <div>
         <h2>Observations</h2>

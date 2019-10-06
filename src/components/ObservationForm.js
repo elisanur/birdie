@@ -7,7 +7,10 @@ const ObservationForm = ({
   handleNewScientificNameChange, 
   newName, 
   newRarity, 
-  newScientificName}) => {
+  newScientificName,
+  handleNewNoteChange,
+  newNote 
+}) => {
   
     return (
     <div>
@@ -34,6 +37,13 @@ const ObservationForm = ({
         <option value="rare">Rare</option>
         <option value="extremely rare">Extremely rare</option>
       </select>
+     <br />
+      <label>Notes
+      <input
+          value={newNote}
+          onChange={handleNewNoteChange}
+        />
+    </label>
       <button type="submit">save</button>
     </form>
 
