@@ -7,8 +7,8 @@ const setToken = newToken => {
   token = `bearer ${newToken}`
 }
 
-const getAll = () => {
-  const request = axios.get(baseUrl + '/observations')
+const getAll = (order='-1') => {
+  const request = axios.get(baseUrl + '/observations?order=' + order)
   return request.then(response => response.data)
 }
 
