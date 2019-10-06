@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 // import logo from './vladimir-kudinov-orng-mDXPnk-unsplash.jpg';
 import './App.css';
 import observationService from './services/observations';
@@ -11,15 +11,33 @@ import LoginForm from './components/loginForm'
 import ObservationForm from './components/ObservationForm';
 import Togglable from './components/Togglable'
 
-const Observation = ({ observation }) => {
-  return (
+class Observation extends Component {
+  state = {
+    noteOpen: false
+  }
+  
+  render() {
+    const { observation } = this.props
+    const { noteOpen } = this.state
+
+    return(
     <div key={observation.id} className="observation-row">
       <span className="observation-name">{observation.name}</span> <span className="observation-scientificname">({observation.scientificName})</span> <span className="observation-time">{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</span>
       <span className={`observation-rarity observation-rarity--${observation.rarity.split(' ').join('-')}`}>{observation.rarity}</span>
-      <div className="observation-note">{observation.note}</div>
+      <div className="observation-note">{noteOpen ? (
+        <>
+        { observation.note} <button onClick={() => this.setState({noteOpen:false})}>Show less</button>
+        </>
+      ) : (
+        <>
+          {observation.note.substring(0, 120)}... <button onClick={() => this.setState({noteOpen:true})}>Show more</button>
+        </>
+        )
+      }</div>
       {/*<button onClick={ e => e.preventDefault() & observationService.remove(observation.id) }>Delete</button>*/}
     </div>
-  )
+    )
+  }
 }
 
 function App() {
@@ -155,9 +173,9 @@ function App() {
     return (
       <div>
         <div style={hideWhenVisible}>
-          <button onClick={() => setLoginVisible(true)}>log in</button>
+          <button onClick={() => setLoginVisible(true)}>Login</button>
         </div>
-        <div style={showWhenVisible}>
+        <div style={showWhenVisible}  className="login-form">
           <LoginForm
             username={username}
             password={password}
@@ -165,7 +183,7 @@ function App() {
             handlePasswordChange={({ target }) => setPassword(target.value)}
             handleSubmit={handleLogin}
           />
-          <button onClick={() => setLoginVisible(false)}>cancel</button>
+          <button onClick={() => setLoginVisible(false)}>Cancel</button>
         </div>
       </div>
     )
@@ -185,30 +203,42 @@ function App() {
   }
 
   return (
-    <div>
-      <h1>Birdie</h1>
+    <div className="page">
+      <div className="header">
+      <h1 className="title">Birdie</h1>
+      <div className="login">
+          {user === null ?
+          loginForm() :
+            <div>
+              {user.name}
+            </div>
+          }
+        </div>
+    </div>
 
-      <Notification message={errorMessage} />
-
-      {user === null ?
-        loginForm() :
-        <div>
-          <p>{user.name} logged in</p>
-          < Togglable buttonLabel="new observation" ref={observationFormRef} >
+    <div className="top-menu">
+    <div className="create-observations">
+    {user === null ? (`Please login to add observations`) : (
+    <Togglable buttonLabel="New observation" ref={observationFormRef} >
             <ObservationForm {...observationFormProps} />
           </Togglable >
+    )}
+    </div>
 
-        </div>
-      }
+    <div className="error-message">
+      <Notification message={errorMessage} />
+    </div>
+    </div>
 
-      <label>Search 
+    <div className="search">
+      <label>Search</label>
       <input
           value={filterObservations}
           onChange={handleFilterObservationsChange}
         />
-      </label>
 
-      <label>Filter
+      <br/>
+      <label>Rarity</label>
       <select
           value={filterObservationsByRarity}
           onChange={handleFilterObservationsByRarityChange}>
@@ -217,12 +247,10 @@ function App() {
           <option value="rare">Rare</option>
           <option value="extremely rare">Extremely rare</option>
         </select>
-      </label>
-
-      <div>
-        <h2>Observations</h2>
-        <div>{observationRows()}</div>
       </div>
+
+      <div className="observations-rows">{observationRows()}</div>
+
       <Footer />
     </div>
   );

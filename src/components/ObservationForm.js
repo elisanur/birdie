@@ -14,37 +14,36 @@ const ObservationForm = ({
   
     return (
     <div>
-      <h2>Create a new observation</h2>
+      <h2 className="create-observation-title">Create a new observation</h2>
       <form onSubmit={onSubmit}>
-      <label>Name
+      <label>Name*</label>
       <input
           value={newName}
-          onChange={handleNewNameChange}
-        />
-      </label>
+          onChange={handleNewNameChange}/>
+
       <br />
-      <label>Scientific name
+      <label>Scientific name</label>
       <input
           value={newScientificName}
           onChange={handleNewScientificNameChange}
         />
-      </label>
+
       <br />
-      <label>Rarity
-      </label>
+      <label>Rarity</label>
       <select value={newRarity} onChange={handleNewRarityChange}>
         <option value="common">Common</option>
         <option value="rare">Rare</option>
         <option value="extremely rare">Extremely rare</option>
       </select>
      <br />
-      <label>Notes
+      <label>Notes<br/>
       <textarea
           value={newNote}
           onChange={handleNewNoteChange}
         />
     </label>
-      <button type="submit">save</button>
+    <br/>
+    <button type="submit">Save</button>
     </form>
 
     </div>
