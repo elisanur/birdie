@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = process.env.API_URL || 'http://localhost:3004/api'
+const baseUrl = process.env.REACT_APP_API_URL || '/api'
 
 let token = null
 
