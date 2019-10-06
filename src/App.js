@@ -2,11 +2,19 @@ import React, { useState, useEffect } from 'react';
 import logo from './vladimir-kudinov-orng-mDXPnk-unsplash.jpg';
 import './App.css';
 import observationService from './services/observations';
+import moment from 'moment'
+import loginService from './services/login'
+import { nextTick } from 'q';
+import Notification from './components/Notification'
+import Footer from './components/Footer'
+import LoginForm from './components/loginForm'
+import ObservationForm from './components/ObservationForm';
+import Togglable from './components/Togglable'
 
 const Observation = ({ observation }) => {
   return (
     <tr>
-      <td>{observation.datetime}</td>
+      <td>{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</td>
       <td>{observation.name}</td>
       <td>{observation.scientificName}</td>
       <td>{observation.rarity}</td>
@@ -20,21 +28,57 @@ function App() {
   const [newName, setNewName] = useState('')
   const [newRarity, setNewRarity] = useState('common')
   const [newScientificName, setNewScientificName] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [user, setUser] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [loginVisible, setLoginVisible] = useState(false)
+
 
   // fetch all observations from API
   useEffect(() => {
-    console.log('effect')
     observationService
       .getAll()
       .then(initialObservations => {
         setObservations(initialObservations)
       })
-
   }, [])
-  console.log('render', observations.length, 'observations')
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBirdieUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      observationService.setToken(user.token)
+    }
+  }, [])
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    try {
+      const user = await loginService.login({
+        username, password
+      })
+
+      window.localStorage.setItem(
+        'loggedBirdieUser', JSON.stringify(user))
+
+      observationService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch (exception) {
+      setErrorMessage('wrong credentials')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
 
   const addObservation = event => {
     event.preventDefault()
+    observationFormRef.current.toggleVisibility()
     const observationObject = {
       name: newName,
       scientificName: newScientificName,
@@ -75,57 +119,66 @@ function App() {
   }
 
 
+
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+    const showWhenVisible = { display: loginVisible ? '' : 'none' }
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={handleLogin}
+          />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
+        </div>
+      </div>
+    )
+  }
+
+  const observationFormRef = React.createRef()
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>Birdie</h1>
-      </header>
-      <p></p>
+    <div>
+      <h1>Birdie</h1>
+
+      <Notification message={errorMessage} />
+
+      {user === null ?
+        loginForm() :
+        <div>
+          <p>{user.name} logged in</p>
+          < Togglable buttonLabel="new observation" ref={observationFormRef} >
+            <ObservationForm
+              onSubmit={addObservation}
+              newName={newName}
+              newRarity={newRarity}
+              newScientificName={newScientificName}
+              handleNewNameChange={handeleNewNameChange}
+              handleNewScientificNameChange={handeleNewScientificNameChange}
+              handleNewRarityChange={handeleNewRarityChange}
+            />
+          </Togglable >
+
+        </div>
+      }
+
+
 
       <div>
+        <h2>Observations</h2>
         <div>{observationRows()}</div>
-        <form onSubmit={addObservation}>
-          <label>Name
-          <input
-              value={newName}
-              onChange={handeleNewNameChange}
-            />
-          </label>
-          <br />
-          <label>Scientific name
-          <input
-              value={newScientificName}
-              onChange={handeleNewScientificNameChange}
-            />
-          </label>
-          <br />
-          <label>Rarity
-          </label>
-
-          <select value={newRarity} onChange={handeleNewRarityChange}>
-            <option value="common">Common</option>
-            <option value="rare">Rare</option>
-            <option value="extremely rare">Extremely rare</option>
-          </select>
-
-
-          <button type="submit">save</button>
-        </form>
       </div>
-
-      {/*       <ButtonNew
-        handleNew={handleNew}
-        setShowBird={setShowBird} /> */}
-
-      {/*       {newObservation
-        ? <NewObservation />
-        :
-        !showBird
-          ? <Birds birds={birds} setShowBird={setShowBird} />
-          : <Bird bird={showBird} />
-      } */
-      }    </div>
+      <Footer />
+    </div>
   );
 }
 
