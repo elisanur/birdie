@@ -16,6 +16,7 @@ const Observation = ({ observation }) => {
     <div key={observation.id} className="observation-row">
       <span className="observation-name">{observation.name}</span> <span className="observation-scientificname">({observation.scientificName})</span> <span className="observation-time">{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</span>
       <span className={`observation-rarity observation-rarity--${observation.rarity.split(' ').join('-')}`}>{observation.rarity}</span>
+      <div className="observation-note">{observation.note}</div>
     </div>
   )
 }

@@ -39,7 +39,7 @@ const ObservationForm = ({
       </select>
      <br />
       <label>Notes
-      <input
+      <textarea
           value={newNote}
           onChange={handleNewNoteChange}
         />
