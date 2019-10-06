@@ -17,6 +17,7 @@ const Observation = ({ observation }) => {
       <span className="observation-name">{observation.name}</span> <span className="observation-scientificname">({observation.scientificName})</span> <span className="observation-time">{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</span>
       <span className={`observation-rarity observation-rarity--${observation.rarity.split(' ').join('-')}`}>{observation.rarity}</span>
       <div className="observation-note">{observation.note}</div>
+      {/*<button onClick={ e => e.preventDefault() & observationService.remove(observation.id) }>Delete</button>*/}
     </div>
   )
 }
@@ -33,6 +34,8 @@ function App() {
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [loginVisible, setLoginVisible] = useState(false)
+  const [filterObservations, setFilterObservations] = useState('')
+  const [filterObservationsByRarity, setFilterObservationsByRarity] = useState('')
 
 
   // fetch all observations from API
@@ -99,11 +102,28 @@ function App() {
       })
   }
 
-  const observationRows = () => observations.map(observation =>
-        <Observation
-          key={observation.id}
-          observation={observation}
-        />
+  const filterObservation = (observation) => {
+    return observation.name.toLowerCase().includes(filterObservations.toLowerCase())
+    || observation.scientificName.toLowerCase().includes(filterObservations.toLowerCase())
+    || observation.note.toLowerCase().includes(filterObservations.toLowerCase())
+  }
+
+  const filterObservationByRarity = (observation) => {
+    if(filterObservationsByRarity === '')
+      return true
+
+    return observation.rarity === filterObservationsByRarity
+  }
+
+
+  const observationRows = () => observations
+  .filter(observation => filterObservation(observation))
+  .filter(observation => filterObservationByRarity(observation))
+  .map(observation =>
+    <Observation
+      key={observation.id}
+      observation={observation}
+    />
   )
 
   const handleNewNameChange = (event) => {
@@ -121,8 +141,12 @@ function App() {
   const handleNewRarityChange = (event) => {
     setNewRarity(event.target.value)
   }
-
-
+  const handleFilterObservationsChange = (event) => {
+    setFilterObservations(event.target.value)
+  }
+  const handleFilterObservationsByRarityChange = (event) => {
+    setFilterObservationsByRarity(event.target.value)
+  }
 
   const loginForm = () => {
     const hideWhenVisible = { display: loginVisible ? 'none' : '' }
@@ -176,6 +200,24 @@ function App() {
 
         </div>
       }
+
+      <label>Search 
+      <input
+          value={filterObservations}
+          onChange={handleFilterObservationsChange}
+        />
+      </label>
+
+      <label>Filter
+      <select
+          value={filterObservationsByRarity}
+          onChange={handleFilterObservationsByRarityChange}>
+          <option value="">All</option>
+          <option value="common">Common</option>
+          <option value="rare">Rare</option>
+          <option value="extremely rare">Extremely rare</option>
+        </select>
+      </label>
 
       <div>
         <h2>Observations</h2>
