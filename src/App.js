@@ -17,13 +17,14 @@ class Observation extends Component {
   }
   
   render() {
-    const { observation } = this.props
+    const { observation, offline=false } = this.props
     const { noteOpen } = this.state
 
     return(
     <div key={observation.id} className="observation-row">
       <span className="observation-name">{observation.name}</span> <span className="observation-scientificname">({observation.scientificName})</span> <span className="observation-time">{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</span>
       <span className={`observation-rarity observation-rarity--${observation.rarity.split(' ').join('-')}`}>{observation.rarity}</span>
+      {offline ? <span className='observation-offline'>Offline</span> : null}
       <div className="observation-note">{noteOpen ? (
         <>
         { observation.note} <button onClick={() => this.setState({noteOpen:false})}>Show less</button>
@@ -43,6 +44,7 @@ class Observation extends Component {
 function App() {
 
   const [observations, setObservations] = useState([])
+  const [offlineObservations, setOfflineObservations] = useState([])
   const [newName, setNewName] = useState('')
   const [newRarity, setNewRarity] = useState('common')
   const [newScientificName, setNewScientificName] = useState('')
@@ -62,6 +64,14 @@ function App() {
       .getAll()
       .then(initialObservations => {
         setObservations(initialObservations)
+      })
+  }, [])
+
+  useEffect(() => {
+    observationService
+      .getAllOfflineObservations()
+      .then(offlineObservations => {
+        setOfflineObservations(offlineObservations)
       })
   }, [])
 
@@ -103,13 +113,18 @@ function App() {
       name: newName,
       scientificName: newScientificName,
       note: newNote,
-      rarity: newRarity
+      rarity: newRarity,
+      datetime: new Date()
     }
 
     observationService
       .create(observationObject)
-      .then(returnedObject => {
-        setObservations([returnedObject].concat(observations))
+      .then(({newObject, offline}) => {
+        if(offline){
+          setOfflineObservations([newObject].concat(offlineObservations))
+        } else {
+          setObservations([newObject].concat(observations))
+        }
         setNewName('')
         setNewScientificName('')
         setNewRarity('common')
@@ -133,12 +148,22 @@ function App() {
     return observation.rarity === filterObservationsByRarity
   }
 
-
   const observationRows = () => observations
   .filter(observation => filterObservation(observation))
   .filter(observation => filterObservationByRarity(observation))
   .map(observation =>
     <Observation
+      key={observation.id}
+      observation={observation}
+    />
+  )
+
+  const offlineObservationRows = () => offlineObservations
+  .filter(observation => filterObservation(observation))
+  .filter(observation => filterObservationByRarity(observation))
+  .map(observation =>
+    <Observation
+      offline={true}
       key={observation.id}
       observation={observation}
     />
@@ -218,10 +243,12 @@ function App() {
 
     <div className="top-menu">
     <div className="create-observations">
-    {user === null ? (`Please login to add observations`) : (
+    {user === null ? (`Please login to add observations`) : (<>
     <Togglable buttonLabel="New observation" ref={observationFormRef} >
             <ObservationForm {...observationFormProps} />
           </Togglable >
+    <button onClick={() => observationService.pushOfflineContent()}>Push my observations online</button>
+</>
     )}
     </div>
 
@@ -249,6 +276,7 @@ function App() {
         </select>
       </div>
 
+      <div className="offlineobservations-rows">{offlineObservationRows()}</div>
       <div className="observations-rows">{observationRows()}</div>
 
       <Footer />
