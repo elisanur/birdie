@@ -1,0 +1,49 @@
+.observation-row {
+  border: 1px solid #b7b7b7;
+  box-shadow: inset 0 0 2px #b7b7b7;
+  background: #8fb3f2;
+  padding: 25px 10px 10px;
+  margin: 10px;
+  border-radius: 3px;
+  position: relative;
+  width: 500px;
+}
+.observation-row span {
+}
+
+.observation-name {
+  font-size: 20px;
+}
+.observation-scientificname {
+  font-size: 14px;
+  font-weight: 400;
+}
+.observation-time {
+  position: absolute;
+  left: 10px;
+  top: 5px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.observation-rarity {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  border: 1px solid #b2b2b2;
+  border-radius: 3px;
+  padding: 2px;
+  text-align: right;
+}
+
+.observation-rarity--rare {
+  background-color: orange;
+}
+
+.observation-rarity--extremely-rare {
+  background-color: tomato;
+}
+
+.observation-rarity--common {
+  background-color: greenyellow;
+}

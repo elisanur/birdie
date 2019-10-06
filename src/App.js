@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import logo from './vladimir-kudinov-orng-mDXPnk-unsplash.jpg';
+// import logo from './vladimir-kudinov-orng-mDXPnk-unsplash.jpg';
 import './App.css';
 import observationService from './services/observations';
 import moment from 'moment'
 import loginService from './services/login'
-import { nextTick } from 'q';
+// import { nextTick } from 'q';
 import Notification from './components/Notification'
 import Footer from './components/Footer'
 import LoginForm from './components/loginForm'
@@ -13,12 +13,10 @@ import Togglable from './components/Togglable'
 
 const Observation = ({ observation }) => {
   return (
-    <tr>
-      <td>{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</td>
-      <td>{observation.name}</td>
-      <td>{observation.scientificName}</td>
-      <td>{observation.rarity}</td>
-    </tr>
+    <div key={observation.id} className="observation-row">
+      <span className="observation-name">{observation.name}</span> <span className="observation-scientificname">({observation.scientificName})</span> <span className="observation-time">{moment(observation.datetime).format('HH:MM:SS DD.MM.YYYY')}</span>
+      <span className={`observation-rarity observation-rarity--${observation.rarity.split(' ').join('-')}`}>{observation.rarity}</span>
+    </div>
   )
 }
 
@@ -75,7 +73,6 @@ function App() {
     }
   }
 
-
   const addObservation = event => {
     event.preventDefault()
     observationFormRef.current.toggleVisibility()
@@ -94,15 +91,17 @@ function App() {
         setNewScientificName('')
         setNewRarity('common')
       })
+      .catch(returnedObject => {
+        console.log(returnedObject)
+        setErrorMessage('Error')
+      })
   }
 
   const observationRows = () => observations.map(observation =>
-    <table>
-      <Observation
-        key={observation.id}
-        observation={observation}
-      />
-    </table>
+        <Observation
+          key={observation.id}
+          observation={observation}
+        />
   )
 
   const handeleNewNameChange = (event) => {
