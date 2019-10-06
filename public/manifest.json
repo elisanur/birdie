@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Birdie",
+  "name": "Birdie - bird observation app",
   "icons": [
     {
       "src": "vladimir-kudinov-orng-mDXPnk-unsplash.jpg",
@@ -8,8 +8,8 @@
       "type": "image/jpg"
     }
   ],
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#8fb3f2",
+  "background_color": "#F0F0F0"
 }
